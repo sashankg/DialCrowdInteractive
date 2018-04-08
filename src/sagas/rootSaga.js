@@ -16,12 +16,12 @@ import { startMicrophone, stopMicrophone } from '../actions/microphoneActions';
 export default function* rootSaga() {
     const params = queryString.parse(window.location.search)
     console.log(params)
-    const socket = yield call(connect);
 
     if(params.option) {
         yield put({ type: 'MODE_CHANGE', mode: params.option })
     }
 
+    const socket = yield call(connect);
     const sid = Date.now() + "\t" + (params.ip ? params.ip : "");
     socket.emit('join', { sid });
 
