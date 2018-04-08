@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 import { eventChannel } from 'redux-saga';
 
 export function connect() {
-    const socket = io('https://sashanks-pro.wv.cc.cmu.edu:3337/chat', { secure: true });
+    const socket = io('http://sashanks-pro.wv.cc.cmu.edu:3337/chat');
     return new Promise(resolve => {
         socket.on('connect', () => {
             resolve(socket);
