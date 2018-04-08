@@ -1,0 +1,189 @@
+@import url('https://fonts.googleapis.com/css?family=Muli');
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Muli', sans-serif;
+    height: 100%;
+}
+
+#root {
+    height: 100%;
+    background-color: #f5f6fa;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    align-items: center;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.messages {
+    min-height: 0;
+    flex: 1;
+    overflow: scroll;
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: stretch;
+}
+
+.messagesContainer {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: stretch;
+}
+
+.messageContainer {
+    flex-direction: column;
+    display: flex;
+    height: fit-content;
+    flex-shrink: 0;
+    margin-top: 9px;
+    margin-bottom: 9px;
+
+}
+
+.message {
+    border-radius: 18px; 
+    padding: 8px;
+    padding-left: 18px;
+    padding-right: 18px;
+    max-width: 360px;
+    box-shadow: 0px 1px 3px #84817a;
+    margin-right: 18px;
+    margin-left: 18px;
+}
+
+.sent {
+    background-color: white;
+    color: #353b48;
+    border-bottom-right-radius: 4px;
+    align-self: flex-end;
+}
+
+.received {
+    background-color: #8c7ae6;
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+    color: white;
+}
+
+.messageText {
+}
+
+.bottom {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.microphone {
+    width: 36px;
+    height: 36px;
+    background-color: #e84118;
+    align-self: center;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 18px;
+    box-shadow: 0px 1px 3px #84817a;
+    cursor: pointer;
+    margin-bottom: 6px;
+    margin-top: 6px;
+}
+
+.listening {
+    background-color: white;
+}
+
+.textInput {
+    box-shadow: 0px 1px 3px #84817a;
+    background-color: white;
+    max-width: 720px;
+    border-top-left-radius: 18px; 
+    border-top-right-radius: 18px; 
+    margin: 0px;
+    flex: 1;
+    margin-left: 18px;
+    margin-right: 36px;
+    display: flex;
+}
+
+input {
+    border: none;
+    background-color: transparent;
+    height: 27px;
+    padding: 0px;
+    outline: none;
+    font-family: 'Muli', sans-serif;
+    font-size: 16px;
+    height: 20px;
+    margin: 18px;
+    margin-top: 14px;
+    margin-bottom: 14px;
+    flex: 1;
+    color: #353b48;
+}
+
+.review {
+    margin-left: 18px;    
+    display: flex;
+}
+
+.reviewButton {
+    margin-top: 9px;
+    margin-left: 9px;
+    cursor: pointer;
+}
+
+.help {
+    background-color: #dcdde1;
+    height: 54px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+    justify-content: flex-end;
+    box-shadow: 0px 1px 3px #84817a;
+}
+
+.helpHeader {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    height: 54px;
+    align-self: flex-end;
+    flex-shrink: 0;
+}
+
+.helpTitle {
+    font-size: 18px;
+    color: #353b48;
+}
+
+.helpIcon {
+    margin: 9px;
+    height: 24px;
+}
+
+.helpText {
+    padding: 18px;
+    flex: 1;
+    max-width: 700px;
+    align-self: center;
+}
+
+i {
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    user-select: none;          /* Likely future */
+}
+
