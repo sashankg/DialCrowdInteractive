@@ -14,10 +14,10 @@ class App extends Component {
           <Messages />
           <div className="bottom">
               { 
-                  this.props.mode != "text" ? <Microphone /> : null
+                  this.props.mode !== "text" ? <Microphone /> : null
               }
               {
-                this.props.mode != "speech" ? <TextInput /> : null
+                this.props.mode !== "speech" ? <TextInput /> : null
               }
           </div>
       </div>

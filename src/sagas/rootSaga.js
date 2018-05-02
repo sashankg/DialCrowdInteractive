@@ -7,29 +7,39 @@ import {
     take
 } from 'redux-saga/effects';
 import queryString from 'query-string';
+import axios from 'axios';
 import { connect, on } from '../util/socketPromises';
 import { listen } from '../util/speechPromises';
 
 import { addMessage, sendMessage } from '../actions/messageActions';
-import { startMicrophone, stopMicrophone } from '../actions/microphoneActions';
+import { stopMicrophone } from '../actions/microphoneActions';
 
 export default function* rootSaga() {
     const params = queryString.parse(window.location.search)
-    console.log(params)
 
     if(params.option) {
         yield put({ type: 'MODE_CHANGE', mode: params.option })
     }
+    if(params.help) {
+        yield put({ type: 'HELP_UPDATE', text: params.help })
+    }
 
     const socket = yield call(connect);
-    const sid = Date.now() + "\t" + (params.ip ? params.ip : "");
+    const sid = Date.now() + "\t" + (params.ip || "");
     socket.emit('join', { sid });
+
+    const sessionData = {
+        sid,
+        userId: params.userID || "notProvided",
+        subId: params.subId || "notProvided",
+        nameOfDialog: params.name_of_dialog || "notProvided",
+    }
 
     yield takeEvery(on(socket, 'status'), receiveStatusSaga)
 
     const synth = window.speechSynthesis;
     yield takeEvery(on(socket, 'message'), receiveMessageSaga, synth);
-    yield takeEvery('MESSAGE_SEND', sendMessageSaga, socket, sid);
+    yield takeEvery('MESSAGE_SEND', sendMessageSaga, socket, sessionData);
     yield fork(microphoneSaga, synth)
 }
 
@@ -44,26 +54,45 @@ function* receiveMessageSaga(synth, data) {
     synth.speak(utterance);
 }
 
-function* sendMessageSaga(socket, sid, action) {
+function* sendMessageSaga(socket, data, action) {
     yield put(addMessage(action.text, action.time, false));
-    socket.emit('usr_input', { msg: action.text, sid });
+    socket.emit('usr_input', { msg: action.text, sid: data.sid });
+    try {
+        const response = yield call(
+            axios.post, 
+            'https://skylar.speech.cs.cmu.edu:8099/dialog_save', 
+            { 
+                subId: data.subId,
+                userID: data.userId,
+                name_of_dialog: data.nameOfDialog, 
+                role: "sender_name",
+                utter: action.text, 
+            })
+        console.log(response)
+    }
+    catch(error) {
+        console.log(error)
+    }
 }
 
 function* microphoneSaga(synth) {
     const recognition = new window.webkitSpeechRecognition();
+    recognition.lang = 'en-US'
+    console.log(recognition.lang)
     //recognition.continuos = true;
     recognition.interim = true;
 
     yield takeLatest('MICROPHONE_START', microphoneCancelSaga, recognition)
-    console.log('sfksjdfh');
 
     while(true) {
         yield take('MICROPHONE_START');
         synth.cancel();
         try {
             const event = yield call(listen, recognition);
-            console.log(event);
-            const result = event.results[0][0].transcript;
+            var result = event.results[0][0].transcript;
+            if(result === "start") {
+                result = "START"
+            }
             yield put(sendMessage(result, Date.now()));
             yield put(stopMicrophone());
         }
