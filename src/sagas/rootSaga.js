@@ -38,7 +38,7 @@ export default function* rootSaga() {
     yield takeEvery(on(socket, 'status'), receiveStatusSaga)
 
     const synth = window.speechSynthesis;
-    yield takeEvery(on(socket, 'message'), receiveMessageSaga, synth);
+    yield takeEvery(on(socket, 'message'), receiveMessageSaga, synth, sessionData);
     yield takeEvery('MESSAGE_SEND', sendMessageSaga, socket, sessionData);
     yield fork(microphoneSaga, synth)
 }
@@ -47,16 +47,21 @@ function* receiveStatusSaga(data) {
     yield put(addMessage(data.msg, Date.now(), true));
 }
 
-function* receiveMessageSaga(synth, data) {
-    const message = data.msg;
+function* receiveMessageSaga(synth, sessionData, messageData) {
+    const message = messageData.msg;
     yield put(addMessage(message, Date.now(), true));
     const utterance = new SpeechSynthesisUtterance(message);
     synth.speak(utterance);
+    yield fork(logMessage, sessionData, message, "Bot")
 }
 
 function* sendMessageSaga(socket, data, action) {
     yield put(addMessage(action.text, action.time, false));
     socket.emit('usr_input', { msg: action.text, sid: data.sid });
+    yield fork(logMessage, data, action.text, "You")
+}
+
+function* logMessage(data, text, role) {
     try {
         const response = yield call(
             axios.post, 
@@ -65,8 +70,8 @@ function* sendMessageSaga(socket, data, action) {
                 subId: data.subId,
                 userID: data.userId,
                 name_of_dialog: data.nameOfDialog, 
-                role: "sender_name",
-                utter: action.text, 
+                role: role,
+                utter: text, 
             })
         console.log(response)
     }

@@ -24,6 +24,7 @@ class Messages extends React.Component {
             { (messages) => {
                 return <div className="messages" >
                         { messages.map((m) => <Message key={ m.key } index={ m.data } style={{ transform: `translate(0px, ${m.style.y}px)`}} />) }
+                    <div style={{ minHeight: 9 }} />
                 </div>
             } 
             }
