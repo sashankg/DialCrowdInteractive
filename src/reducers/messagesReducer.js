@@ -1,5 +1,4 @@
 export default function messagesReducer(state, action) {
-    console.log(action);
     switch(action.type) {
         case 'MESSAGE_ADD':
             return  state.concat([{

@@ -83,7 +83,6 @@ function* logMessage(data, text, role) {
 function* microphoneSaga(synth) {
     const recognition = new window.webkitSpeechRecognition();
     recognition.lang = 'en-US'
-    console.log(recognition.lang)
     //recognition.continuos = true;
     recognition.interim = true;
 
