@@ -1,0 +1,10 @@
+{
+  "name": "DialCrowdInteractive",
+  "description": "Web interface for interactive tests on DialCrowd",
+  "repository": "https://github.com/sashankg/DialCrowdInteractive/new/master",
+  "buildpacks": [
+    {
+      "url": "https://github.com/mars/create-react-app-buildpack"
+    }
+  ]
+}
