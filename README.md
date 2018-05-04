@@ -14,7 +14,7 @@ npm start
 - `name_of_dialog`
 
 ### Optional URL parameters
-- `option` : `text`, `speech`, or `both`
+- `option` : `both` (default), `text`, or `speech`
 - `help` : text to appear in help menu
 
 ## Deploy
