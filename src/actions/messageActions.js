@@ -14,3 +14,12 @@ export function addMessage(text, time, received) {
         received,
     }
 }
+
+export function sendFeedback(text, time, feedback) {
+    return {
+        type: 'FEEDBACK_SEND',
+        text,
+        time,
+        feedback,
+    }
+}

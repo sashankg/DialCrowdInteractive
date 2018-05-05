@@ -4,12 +4,14 @@ import {
     takeLatest,
     put, 
     fork,
-    take
+    take,
+    cancel,
+    race
 } from 'redux-saga/effects';
 import queryString from 'query-string';
 import axios from 'axios';
 import { connect, on } from '../util/socketPromises';
-import { listen } from '../util/speechPromises';
+import { listen, speak } from '../util/speechPromises';
 
 import { addMessage, sendMessage } from '../actions/messageActions';
 import { stopMicrophone } from '../actions/microphoneActions';
@@ -18,7 +20,8 @@ export default function* rootSaga() {
     const params = queryString.parse(window.location.search)
 
     if(params.option) {
-        yield put({ type: 'MODE_CHANGE', mode: params.option })
+        const option = params.option === "continuous" ? "speech" : params.option
+        yield put({ type: 'MODE_CHANGE', mode: option })
     }
     if(params.help) {
         yield put({ type: 'HELP_UPDATE', text: params.help })
@@ -33,6 +36,7 @@ export default function* rootSaga() {
         userId: params.userID || "notProvided",
         subId: params.subId || "notProvided",
         nameOfDialog: params.name_of_dialog || "notProvided",
+        mode: params.option,
     }
 
     yield takeEvery(on(socket, 'status'), receiveStatusSaga)
@@ -51,8 +55,12 @@ function* receiveMessageSaga(synth, sessionData, messageData) {
     const message = messageData.msg;
     yield put(addMessage(message, Date.now(), true));
     const utterance = new SpeechSynthesisUtterance(message);
-    synth.speak(utterance);
+    console.log(utterance)
     yield fork(logMessage, sessionData, message, "Bot")
+    yield call(speak, synth, utterance);
+    if(sessionData.mode === 'continuous') {
+        yield put({ type: 'MICROPHONE_START' })
+    }
 }
 
 function* sendMessageSaga(socket, data, action) {
@@ -81,23 +89,44 @@ function* logMessage(data, text, role) {
 }
 
 function* microphoneSaga(synth) {
-    const recognition = new window.webkitSpeechRecognition();
+    /*const recognition = new window.webkitSpeechRecognition();
     recognition.lang = 'en-US'
     //recognition.continuos = true;
     recognition.interim = true;
 
-    yield takeLatest('MICROPHONE_START', microphoneCancelSaga, recognition)
+    recognition.onstart = (e) => {
+        console.log(e)
+    }
+
+    recognition.onend = (e) => {
+        console.log(e)
+    }*/
+
+    //yield takeLatest('MICROPHONE_START', microphoneCancelSaga, recognition)
 
     while(true) {
         yield take('MICROPHONE_START');
         synth.cancel();
+        const recognition = new window.webkitSpeechRecognition();
+        recognition.lang = 'en-US'
+        //recognition.continuos = true;
+        recognition.interim = true;
         try {
-            const event = yield call(listen, recognition);
-            var result = event.results[0][0].transcript;
-            if(result === "start") {
-                result = "START"
+            const { event, cancel } = yield race({
+                event: call(listen, recognition),
+                cancel: take('MICROPHONE_CANCEL')
+            });
+
+            if(event) {
+                var result = event.results[0][0].transcript;
+                if(result === "start") {
+                    result = "START"
+                }
+                yield put(sendMessage(result, Date.now()));
             }
-            yield put(sendMessage(result, Date.now()));
+            else {
+                recognition.stop();
+            }
             yield put(stopMicrophone());
         }
         catch(error) {
@@ -105,10 +134,4 @@ function* microphoneSaga(synth) {
             yield put(stopMicrophone());
         }
     }
-}
-
-function* microphoneCancelSaga(recognition) {
-    yield take('MICROPHONE_CANCEL');
-    recognition.stop();
-    yield put(stopMicrophone());
 }

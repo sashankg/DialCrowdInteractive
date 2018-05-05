@@ -12,7 +12,7 @@ export default function configureStore() {
     const createStoreWithMiddleware = applyMiddleware(sagaMiddleware)(createStore)
 
     return {
-        ...createStoreWithMiddleware(rootReducer),
+        ...createStoreWithMiddleware(rootReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()),
         runSaga: () => sagaMiddleware.run(rootSaga),
     }
 }
