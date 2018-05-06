@@ -14,6 +14,7 @@ export default function* messagesSaga(sessionData, socket, synth) {
     yield takeEvery(on(socket, 'status'), receiveStatusSaga)
     yield takeEvery(on(socket, 'message'), receiveMessageSaga, synth, sessionData);
     yield takeEvery('MESSAGE_SEND', sendMessageSaga, socket, sessionData);
+    yield takeEvery('FEEDBACK_SEND', sendFeedbackSaga, sessionData);
 }
 
 function* receiveStatusSaga(data) {
@@ -54,5 +55,24 @@ function* logMessage(data, text, role) {
     }
     catch(error) {
         console.log(error)
+    }
+}
+
+function* sendFeedbackSaga(data, action) {
+    try {
+        yield call(
+            axios.post,
+            'https://skylar.speech.cs.cmu.edu:8099/feedback', 
+            {
+                subId: data.subId,
+                userID: data.userId,
+                name_of_dialog: data.nameOfDialog,
+                utter: action.text, 
+                feedback: action.feedback,
+            }
+        )
+    }
+    catch(error) {
+
     }
 }
