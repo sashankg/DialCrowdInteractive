@@ -1,6 +1,6 @@
 # DialCrowd Interactive Test Interface
 
-(short description)
+Chat interface for crowdsourced testing of dialogue systems through DialCrowd
 
 ## Get Started
 ```
